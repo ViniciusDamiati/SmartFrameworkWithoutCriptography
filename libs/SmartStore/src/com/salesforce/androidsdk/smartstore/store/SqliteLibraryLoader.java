@@ -33,6 +33,7 @@ import android.os.Build;
 
 import com.salesforce.androidsdk.smartstore.util.SmartStoreLogger;
 
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import java.io.BufferedOutputStream;

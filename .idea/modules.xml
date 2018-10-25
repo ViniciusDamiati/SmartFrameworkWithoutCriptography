@@ -3,13 +3,21 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ArcthosSmart/ArcthosSmart.iml" filepath="$PROJECT_DIR$/ArcthosSmart/ArcthosSmart.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\ArcthosSmart\ArcthosSmart.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\ArcthosSmart\ArcthosSmart.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/SalesforceAnalytics/SalesforceAnalytics.iml" filepath="$PROJECT_DIR$/libs/SalesforceAnalytics/SalesforceAnalytics.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SalesforceAnalytics\SalesforceAnalytics.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SalesforceAnalytics\SalesforceAnalytics.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/SalesforceSDK/SalesforceSDK.iml" filepath="$PROJECT_DIR$/libs/SalesforceSDK/SalesforceSDK.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SalesforceSDK\SalesforceSDK.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SalesforceSDK\SalesforceSDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/SmartFrameworkWithoutCriptography.iml" filepath="$PROJECT_DIR$/SmartFrameworkWithoutCriptography.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\SmartFrameworkWithoutCriptography.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\SmartFrameworkWithoutCriptography.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/SmartStore/SmartStore.iml" filepath="$PROJECT_DIR$/libs/SmartStore/SmartStore.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SmartStore\SmartStore.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SmartStore\SmartStore.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/SmartSync/SmartSync.iml" filepath="$PROJECT_DIR$/libs/SmartSync/SmartSync.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SmartSync\SmartSync.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\SmartSync\SmartSync.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\app\app.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/libs.iml" filepath="$PROJECT_DIR$/libs/libs.iml" />
+      <module fileurl="file://C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\libs.iml" filepath="C:\Users\vinic\Documents\Android Projects\SmartFrameworkWithoutCriptography\libs\libs.iml" />
     </modules>
   </component>
 </project>
