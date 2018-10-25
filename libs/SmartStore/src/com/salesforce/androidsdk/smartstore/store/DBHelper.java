@@ -29,17 +29,16 @@ package com.salesforce.androidsdk.smartstore.store;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
+import android.database.sqlite.SQLiteStatement;
 
 import com.salesforce.androidsdk.accounts.UserAccount;
 import com.salesforce.androidsdk.smartstore.app.SmartStoreSDKManager;
 import com.salesforce.androidsdk.smartstore.store.SmartStore.SmartStoreException;
 import com.salesforce.androidsdk.smartstore.store.SmartStore.Type;
 import com.salesforce.androidsdk.smartstore.util.SmartStoreLogger;
-
-import net.sqlcipher.DatabaseUtils.InsertHelper;
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteDoneException;
-import net.sqlcipher.database.SQLiteStatement;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -107,7 +106,7 @@ public class DBHelper {
 	private Map<String, SQLiteStatement> tableNameToNextIdStatementsMap = new HashMap<String, SQLiteStatement>();
 
 	// Cache of table name to insert helpers
-	private Map<String, InsertHelper> tableNameToInsertHelpersMap = new HashMap<String, InsertHelper>();
+	private Map<String, DatabaseUtils.InsertHelper> tableNameToInsertHelpersMap = new HashMap<>();
 
 	// Cache of raw count sql to compiled statements
 	private Map<String, SQLiteStatement> rawCountSqlToStatementsMap = new HashMap<String, SQLiteStatement>();
@@ -183,7 +182,7 @@ public class DBHelper {
 	public void removeFromCache(String soupName) {
 		String tableName = soupNameToTableNamesMap.get(soupName);
 		if (tableName != null) {
-			InsertHelper ih = tableNameToInsertHelpersMap.remove(tableName);
+			DatabaseUtils.InsertHelper ih = tableNameToInsertHelpersMap.remove(tableName);
 			if (ih != null) 
 				ih.close();
 			
@@ -242,10 +241,10 @@ public class DBHelper {
 	 * @param table
 	 * @return
 	 */
-	public InsertHelper getInsertHelper(SQLiteDatabase db, String table) {
-		InsertHelper insertHelper = tableNameToInsertHelpersMap.get(table);
+	public DatabaseUtils.InsertHelper getInsertHelper(SQLiteDatabase db, String table) {
+		DatabaseUtils.InsertHelper insertHelper = tableNameToInsertHelpersMap.get(table);
 		if (insertHelper == null) {
-			insertHelper = new InsertHelper(db, table);
+			insertHelper = new DatabaseUtils.InsertHelper(db, table);
 			tableNameToInsertHelpersMap.put(table, insertHelper);
 		}
 		return insertHelper;
@@ -370,7 +369,7 @@ public class DBHelper {
 	 * @return row id of inserted row
 	 */
 	public long insert(SQLiteDatabase db, String table, ContentValues contentValues) {
-		InsertHelper ih = getInsertHelper(db, table);
+		DatabaseUtils.InsertHelper ih = getInsertHelper(db, table);
 		return ih.insert(contentValues);
 	}
 
@@ -430,7 +429,7 @@ public class DBHelper {
 	public synchronized void clearMemoryCache() {
 
 		// Closes all statements.
-		for (final InsertHelper  ih : tableNameToInsertHelpersMap.values()) {
+		for (final DatabaseUtils.InsertHelper ih : tableNameToInsertHelpersMap.values()) {
 			ih.close();
 		}
 		for (final SQLiteStatement prog : tableNameToNextIdStatementsMap.values()) {

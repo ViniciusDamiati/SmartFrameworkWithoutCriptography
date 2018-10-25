@@ -27,16 +27,14 @@
 package com.salesforce.androidsdk.smartstore.store;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
 import com.salesforce.androidsdk.accounts.UserAccount;
 import com.salesforce.androidsdk.analytics.EventBuilderHelper;
 import com.salesforce.androidsdk.analytics.security.Encryptor;
 import com.salesforce.androidsdk.smartstore.util.SmartStoreLogger;
-
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteDatabaseHook;
-import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -221,7 +219,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	}
 
 	protected DBOpenHelper(Context context, String dbName) {
-		super(context, dbName, null, DB_VERSION, new DBHook());
+		super(context, dbName, null, DB_VERSION);
 		this.loadLibs(context);
 		this.dbName = dbName;
 		dataDir = context.getApplicationInfo().dataDir;
@@ -394,17 +392,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 		dbName.append(DB_NAME_SUFFIX);
 		return ctx.getDatabasePath(dbName.toString()).exists();
 	}
-
-	static class DBHook implements SQLiteDatabaseHook {
-		public void preKey(SQLiteDatabase database) {
-			database.execSQL("PRAGMA cipher_default_kdf_iter = '4000'");
-			// the new default for sqlcipher 3.x (64000) is too slow
-			// also that way we can open 2.x databases without any migration
-		}
-
-		public void postKey(SQLiteDatabase database) {
-		}
-	};
 
 	private static void deleteFiles(Context ctx, String prefix) {
 		final String dbPath = ctx.getApplicationInfo().dataDir + "/databases";

@@ -29,6 +29,8 @@ package com.salesforce.androidsdk.smartstore.app;
 import android.accounts.Account;
 import android.app.Activity;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
 import com.salesforce.androidsdk.accounts.UserAccount;
@@ -39,9 +41,6 @@ import com.salesforce.androidsdk.smartstore.store.SmartStore;
 import com.salesforce.androidsdk.ui.LoginActivity;
 import com.salesforce.androidsdk.util.EventsObservable;
 import com.salesforce.androidsdk.util.EventsObservable.EventType;
-
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -169,7 +168,7 @@ public class SmartStoreSDKManager extends SalesforceSDKManager {
                         if (dbHelper != null) {
 
                             // If the old passcode is null, use the default key.
-                            final SQLiteDatabase db = dbHelper.getWritableDatabase(getEncryptionKeyForPasscode(oldPass));
+                            final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
                             // If the new passcode is null, use the default key.
                             SmartStore.changeKey(db, getEncryptionKeyForPasscode(oldPass), getEncryptionKeyForPasscode(newPass));

@@ -28,6 +28,8 @@ package com.salesforce.androidsdk.smartstore.store;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
 import com.salesforce.androidsdk.analytics.EventBuilderHelper;
@@ -36,9 +38,6 @@ import com.salesforce.androidsdk.smartstore.store.LongOperation.LongOperationTyp
 import com.salesforce.androidsdk.smartstore.store.QuerySpec.QueryType;
 import com.salesforce.androidsdk.smartstore.util.SmartStoreLogger;
 import com.salesforce.androidsdk.util.JSONObjectHelper;
-
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -229,7 +228,7 @@ public class SmartStore  {
     	if (dbLocal != null) {
             return dbLocal;
         } else {
-            return this.dbOpenHelper.getWritableDatabase(passcode);
+            return this.dbOpenHelper.getWritableDatabase();
         }
     }
 
