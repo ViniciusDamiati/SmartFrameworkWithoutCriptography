@@ -26,15 +26,13 @@
  */
 package com.salesforce.androidsdk.smartstore.store;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+import net.sqlcipher.database.SQLiteDatabase;
 
 import com.salesforce.androidsdk.smartstore.store.SmartStore.SmartStoreException;
 

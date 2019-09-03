@@ -27,14 +27,16 @@
 package com.salesforce.androidsdk.smartstore.store;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
 import com.salesforce.androidsdk.accounts.UserAccount;
 import com.salesforce.androidsdk.analytics.EventBuilderHelper;
 import com.salesforce.androidsdk.analytics.security.Encryptor;
 import com.salesforce.androidsdk.smartstore.util.SmartStoreLogger;
+
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabaseHook;
+import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -219,14 +221,14 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	}
 
 	protected DBOpenHelper(Context context, String dbName) {
-		super(context, dbName, null, DB_VERSION);
+		super(context, dbName, null, DB_VERSION, new DBHook());
 		this.loadLibs(context);
 		this.dbName = dbName;
 		dataDir = context.getApplicationInfo().dataDir;
 	}
 
 	protected void loadLibs(Context context) {
-		SqliteLibraryLoader.loadSqlCipher(context);
+		SQLiteDatabase.loadLibs(context);
 	}
 
 	@Override
@@ -392,6 +394,17 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 		dbName.append(DB_NAME_SUFFIX);
 		return ctx.getDatabasePath(dbName.toString()).exists();
 	}
+
+	static class DBHook implements SQLiteDatabaseHook {
+		public void preKey(SQLiteDatabase database) {
+			database.execSQL("PRAGMA cipher_default_kdf_iter = '4000'");
+			// the new default for sqlcipher 3.x (64000) is too slow
+			// also that way we can open 2.x databases without any migration
+		}
+
+		public void postKey(SQLiteDatabase database) {
+		}
+	};
 
 	private static void deleteFiles(Context ctx, String prefix) {
 		final String dbPath = ctx.getApplicationInfo().dataDir + "/databases";
@@ -603,12 +616,12 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	 * @param soupTableName Name of the soup that the blob belongs to.
 	 * @param soupEntryId Entry id for the soup blob.
 	 * @param soupElt Blob to store on file storage in JSON format.
-	 * @param passcode Key with which to encrypt the data.
+	 * @param encryptionKey Key with which to encrypt the data.
 	 *
 	 * @return True if operation was successful, false otherwise.
 	 */
-	public boolean saveSoupBlob(String soupTableName, long soupEntryId, JSONObject soupElt, String passcode) {
-		return saveSoupBlobFromString(soupTableName, soupEntryId, soupElt.toString(), passcode);
+	public boolean saveSoupBlob(String soupTableName, long soupEntryId, JSONObject soupElt, String encryptionKey) {
+		return saveSoupBlobFromString(soupTableName, soupEntryId, soupElt.toString(), encryptionKey);
 	}
 
 	/**
@@ -617,14 +630,14 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	 * @param soupTableName Name of the soup that the blob belongs to.
 	 * @param soupEntryId Entry id for the soup blob.
 	 * @param soupEltStr Blob to store on file storage as a String.
-	 * @param passcode Key with which to encrypt the data.
+	 * @param encryptionKey Key with which to encrypt the data.
 	 *
 	 * @return True if operation was successful, false otherwise.
 	 */
-	public boolean saveSoupBlobFromString(String soupTableName, long soupEntryId, String soupEltStr, String passcode) {
+	public boolean saveSoupBlobFromString(String soupTableName, long soupEntryId, String soupEltStr, String encryptionKey) {
 		File file = getSoupBlobFile(soupTableName, soupEntryId);
 		try (FileOutputStream outputStream = new FileOutputStream(file, false)) {
-			byte[] data = Encryptor.encryptBytes(soupEltStr, passcode);
+			byte[] data = Encryptor.encryptBytes(soupEltStr, encryptionKey);
 			if (data != null) {
 				outputStream.write(data);
 				return true;
@@ -640,14 +653,14 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	 *
 	 * @param soupTableName Soup name to which the blob belongs.
 	 * @param soupEntryId Entry id for the requested soup blob.
-	 * @param passcode Key with which to decrypt the data.
+	 * @param encryptionKey Key with which to decrypt the data.
 	 *
 	 * @return The blob from file storage represented as JSON. Returns null if there was an error.
 	 */
-	public JSONObject loadSoupBlob(String soupTableName, long soupEntryId, String passcode) {
+	public JSONObject loadSoupBlob(String soupTableName, long soupEntryId, String encryptionKey) {
 		JSONObject result = null;
 		try {
-			final String soupBlobString = loadSoupBlobAsString(soupTableName, soupEntryId, passcode);
+			final String soupBlobString = loadSoupBlobAsString(soupTableName, soupEntryId, encryptionKey);
 			if (soupBlobString != null) {
 				result = new JSONObject(soupBlobString);
 			}
@@ -662,17 +675,17 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	 *
 	 * @param soupTableName Soup name to which the blob belongs.
 	 * @param soupEntryId Entry id for the requested soup blob.
-	 * @param passcode Key with which to decrypt the data.
+	 * @param encryptionKey Key with which to decrypt the data.
 	 *
 	 * @return The blob from file storage represented as String. Returns null if there was an error.
 	 */
-	public String loadSoupBlobAsString(String soupTableName, long soupEntryId, String passcode) {
+	public String loadSoupBlobAsString(String soupTableName, long soupEntryId, String encryptionKey) {
 		File file = getSoupBlobFile(soupTableName, soupEntryId);
 		try (FileInputStream f = new FileInputStream(file)) {
 			DataInputStream data = new DataInputStream(f);
 			byte[] bytes = new byte[(int) file.length()];
 			data.readFully(bytes);
-			return Encryptor.decrypt(bytes, passcode);
+			return Encryptor.decrypt(bytes, encryptionKey);
 		} catch (IOException ex) {
             SmartStoreLogger.e(TAG, "Exception occurred while attempting to read external soup blob", ex);
 		}

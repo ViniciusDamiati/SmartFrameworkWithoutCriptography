@@ -39,6 +39,10 @@ public abstract class Repository<T extends SmartObject> {
         getSoup();
     }
 
+    protected SmartSelect<T> getSmartSelect() {
+        return SmartSelect.from(this.store, typeClass);
+    }
+
     public T create(T model) throws JSONException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -60,11 +64,11 @@ public abstract class Repository<T extends SmartObject> {
             return responses;
         }
 
-        if(models.isEmpty()) {
+        if (models.isEmpty()) {
             return responses;
         }
 
-        for(T model : models) {
+        for (T model : models) {
             responses.add(create(model));
         }
 
@@ -72,7 +76,7 @@ public abstract class Repository<T extends SmartObject> {
     }
 
     public T update(T model) throws JSONException, RegisterNotCreatedException, IOException {
-        if(model.getSoupEntryId() == -1) {
+        if (model.getSoupEntryId() == -1) {
             throw new RegisterNotCreatedException("You can't update an register that was not created yet.");
         }
 
@@ -95,11 +99,11 @@ public abstract class Repository<T extends SmartObject> {
             return responses;
         }
 
-        if(models.isEmpty()) {
+        if (models.isEmpty()) {
             return responses;
         }
 
-        for(T model : models) {
+        for (T model : models) {
             responses.add(update(model));
         }
 
@@ -127,11 +131,11 @@ public abstract class Repository<T extends SmartObject> {
             return responses;
         }
 
-        if(models.isEmpty()) {
+        if (models.isEmpty()) {
             return responses;
         }
 
-        for(T model : models) {
+        for (T model : models) {
             responses.add(upsert(model));
         }
 
@@ -139,7 +143,7 @@ public abstract class Repository<T extends SmartObject> {
     }
 
     public boolean delete(T model) {
-        if(model.getSoupEntryId() == -1) {
+        if (model.getSoupEntryId() == -1) {
             return false;
         }
 
@@ -152,20 +156,20 @@ public abstract class Repository<T extends SmartObject> {
             return false;
         }
 
-        if(models.isEmpty()) {
+        if (models.isEmpty()) {
             return false;
         }
 
         List<T> validModels = new ArrayList<>();
-        for(T model : models) {
-            if(model.getSoupEntryId() == -1) {
+        for (T model : models) {
+            if (model.getSoupEntryId() == -1) {
                 continue;
             }
             validModels.add(model);
         }
 
         Long[] soupEntryIds = new Long[validModels.size()];
-        for(int i = 0; i < validModels.size(); i++) {
+        for (int i = 0; i < validModels.size(); i++) {
             soupEntryIds[i] = validModels.get(i).getSoupEntryId();
         }
 
@@ -174,11 +178,11 @@ public abstract class Repository<T extends SmartObject> {
     }
 
     public T find(String id) {
-        if(id == null) {
+        if (id == null) {
             return null;
         }
 
-        T model = SmartSelect.from(store, typeClass)
+        T model = getSmartSelect()
                 .where(Condition.prop(Constants.ID).eq(id),
                         Condition.prop(GeneralConstants.IS_DELETED).eq("false"))
                 .first();
@@ -187,11 +191,11 @@ public abstract class Repository<T extends SmartObject> {
     }
 
     public T findWithDeleteds(String id) {
-        if(id == null) {
+        if (id == null) {
             return null;
         }
 
-        T model = SmartSelect.from(store, typeClass)
+        T model = getSmartSelect()
                 .where(Condition.prop(Constants.ID).eq(id))
                 .first();
 
@@ -199,7 +203,7 @@ public abstract class Repository<T extends SmartObject> {
     }
 
     public T findByEntryId(long entryId) {
-        T model = SmartSelect.from(store, typeClass)
+        T model = getSmartSelect()
                 .where(Condition.prop(SmartObjectConstants.SOUP_ENTRY_ID).eq(entryId))
                 .first();
 
@@ -207,51 +211,57 @@ public abstract class Repository<T extends SmartObject> {
     }
 
     public List<T> findAll() {
-        return SmartSelect.from(store, typeClass)
+        return getSmartSelect()
                 .where(Condition.prop(GeneralConstants.IS_DELETED).eq("false"))
                 .list();
     }
 
     public List<T> findAllWithDeleteds() {
-        return SmartSelect.from(store, typeClass).list();
+        return getSmartSelect().list();
     }
 
     public List<T> findAllWithLimit(int limit) {
-        return SmartSelect.from(store, typeClass)
+        return getSmartSelect()
                 .where(Condition.prop(GeneralConstants.IS_DELETED).eq("false"))
                 .limit(String.valueOf(limit))
                 .list();
     }
 
     public List<T> findAllOrderByAsc(String fieldName) {
-        return SmartSelect.from(store, typeClass)
+        return getSmartSelect()
                 .where(Condition.prop(GeneralConstants.IS_DELETED).eq("false"))
                 .orderBy(fieldName)
                 .list();
     }
 
     public List<T> findAllOrderByDesc(String fieldName) {
-        return SmartSelect.from(store, typeClass)
+        return getSmartSelect()
                 .where(Condition.prop(GeneralConstants.IS_DELETED).eq("false"))
                 .orderByDesc(fieldName)
                 .list();
     }
 
     public List<T> findAllWithDeletedWithLimit(int limit) {
-        return SmartSelect.from(store, typeClass)
+        return getSmartSelect()
                 .limit(String.valueOf(limit))
                 .list();
     }
 
     public List<T> findAllWithDeletedOrderByAsc(String fieldName) {
-        return SmartSelect.from(store, typeClass)
+        return getSmartSelect()
                 .orderBy(fieldName)
                 .list();
     }
 
     public List<T> findAllWithDeletedOrderByDesc(String fieldName) {
-        return SmartSelect.from(store, typeClass)
+        return getSmartSelect()
                 .orderByDesc(fieldName)
+                .list();
+    }
+
+    public List<T> findByIds(List<String> ids) {
+        return getSmartSelect()
+                .in(ids, SmartObjectConstants.ID)
                 .list();
     }
 
@@ -280,16 +290,44 @@ public abstract class Repository<T extends SmartObject> {
         return result;
     }
 
+    public List<T> findByLocal() {
+        return getSmartSelect()
+                .where(Condition.prop(SmartObjectConstants.LOCAL).eq(true))
+                .list();
+    }
+
+    public List<String> findDistinctByField(String field) throws JSONException {
+        List<String> distinct = new ArrayList<>();
+
+        String query = "Select Distinct({"
+                .concat(soup)
+                .concat(":")
+                .concat(field)
+                .concat("}) from {")
+                .concat(soup)
+                .concat("}");
+
+        QuerySpec querySpec = QuerySpec.buildSmartQuerySpec(query, 50000);
+
+        JSONArray results = store.query(querySpec, 0);
+
+        for (int i = 0; i < results.length(); i++) {
+            distinct.add(results.getJSONArray(i).getString(0));
+        }
+
+        return distinct;
+    }
+
     private void getSoup() {
-        if(!typeClass.isAnnotationPresent(SObject.class)) {
+        if (!typeClass.isAnnotationPresent(SObject.class)) {
             Log.e(SmartObject.class.getSimpleName() + "::GET_SOUP", "SObject annotation missing in model class: " + typeClass.getSimpleName());
             this.soup = "";
             return;
         }
 
-        for(Annotation annotation : typeClass.getAnnotations()) {
-            if(annotation instanceof SObject){
-                this.soup = ((SObject)annotation).value();
+        for (Annotation annotation : typeClass.getAnnotations()) {
+            if (annotation instanceof SObject) {
+                this.soup = ((SObject) annotation).value();
             }
         }
     }

@@ -75,10 +75,10 @@ public class SmartSelect<T> implements Iterable {
     }
 
     private void mergeConditions(Condition[] conditions, Condition.Type type) {
-        StringBuilder toAppend = new StringBuilder("");
+        StringBuilder toAppend = new StringBuilder();
         for (Condition condition : conditions) {
             if (toAppend.length() != 0) {
-                toAppend.append(" ").append(type.name()).append(" ");
+                toAppend.append(" ").append(type.getName()).append(" ");
             }
 
             if (Condition.Check.LIKE.equals(condition.getCheck()) ||
@@ -118,10 +118,10 @@ public class SmartSelect<T> implements Iterable {
         }
 
         if (!"".equals(whereClause)) {
-            whereClause += " " + type.name() + " ";
+            whereClause += " " + type.getName() + " " + type.getOpeningSymbol();
         }
 
-        whereClause += "(" + toAppend + ")";
+        whereClause += "(" + toAppend + ")" + type.getClosingSymbol();
     }
 
     public SmartSelect<T> whereOr(Condition... args) {
@@ -134,8 +134,28 @@ public class SmartSelect<T> implements Iterable {
         return this;
     }
 
+    public SmartSelect<T> andOpeningParentheses(Condition... args) {
+        mergeConditions(args, Condition.Type.AND_OPENING_PARENTHESES);
+        return this;
+    }
+
+    public SmartSelect<T> andClosingParentheses(Condition... args) {
+        mergeConditions(args, Condition.Type.AND_CLOSING_PARENTHESES);
+        return this;
+    }
+
     public SmartSelect<T> or(Condition... args) {
         mergeConditions(args, Condition.Type.OR);
+        return this;
+    }
+
+    public SmartSelect<T> orOpeningParentheses(Condition... args) {
+        mergeConditions(args, Condition.Type.OR_OPENING_PARENTHESES);
+        return this;
+    }
+
+    public SmartSelect<T> orClosingParentheses(Condition... args) {
+        mergeConditions(args, Condition.Type.OR_CLOSING_PARENTHESES);
         return this;
     }
 
@@ -156,6 +176,18 @@ public class SmartSelect<T> implements Iterable {
         }
 
         return or(conditions);
+    }
+
+    public SmartSelect<T> notIn(List<String> args, String field) {
+        if (args == null || args.isEmpty()) return this;
+        Condition[] conditions = new Condition[args.size()];
+
+        for (int i = 0; i < args.size(); ++i) {
+            Condition condition = Condition.prop(field).notEq(args.get(i));
+            conditions[i] = condition;
+        }
+
+        return this.and(conditions);
     }
 
     public SmartSelect<T> where(String whereClause, String[] args) {
